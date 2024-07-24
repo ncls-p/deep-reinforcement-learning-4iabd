@@ -74,6 +74,7 @@ class PolicyIteration(DynamicProgramming):
     def __init__(self, env_type, gamma: float, theta: float, max_iterations: int):
         super().__init__(env_type, gamma, theta, max_iterations)
         self.policy = np.random.choice(self.actions, size=self.env.num_states())
+        self.best_reward = float("-inf")
         logger.info("Initialized PolicyIteration")
 
     def policy_evaluation(self):
@@ -118,7 +119,17 @@ class PolicyIteration(DynamicProgramming):
         for i in range(self.max_iterations):
             logger.info(f"Iteration {i+1}")
             self.policy_evaluation()
-            if self.policy_improvement():
+            policy_stable = self.policy_improvement()
+
+            # Calculate current reward
+            current_reward = sum(self.V)
+            self.best_reward = max(self.best_reward, current_reward)
+
+            logger.info(
+                f"Current reward: {current_reward}, Best reward: {self.best_reward}"
+            )
+
+            if policy_stable:
                 logger.info(f"PolicyIteration converged after {i+1} iterations")
                 break
         policy = self.get_best_policy()
@@ -127,6 +138,10 @@ class PolicyIteration(DynamicProgramming):
 
 
 class ValueIteration(DynamicProgramming):
+    def __init__(self, env_type, gamma: float, theta: float, max_iterations: int):
+        super().__init__(env_type, gamma, theta, max_iterations)
+        self.best_reward = float("-inf")
+
     def run(self) -> Dict[int, int]:
         logger.info("Starting ValueIteration run")
         for i in range(self.max_iterations):
@@ -139,7 +154,15 @@ class ValueIteration(DynamicProgramming):
                 logger.debug(
                     f"Iteration {i+1}, State {state}: Value {self.V[state]}, Delta: {delta}"
                 )
-            logger.info(f"Iteration {i+1}: Delta {delta}")
+
+            # Calculate current reward
+            current_reward = sum(self.V)
+            self.best_reward = max(self.best_reward, current_reward)
+
+            logger.info(
+                f"Iteration {i+1}: Delta {delta}, Current reward: {current_reward}, Best reward: {self.best_reward}"
+            )
+
             if delta < self.theta:
                 logger.info(f"ValueIteration converged after {i+1} iterations")
                 break

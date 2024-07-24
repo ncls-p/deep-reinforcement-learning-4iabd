@@ -6,7 +6,7 @@ from numpy.typing import NDArray
 from secret_envs_wrapper import SecretEnv0, SecretEnv1
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -83,7 +83,7 @@ class Sarsa:
 
             episode_score = self.env.score()
             logger.info(
-                f"Episode {episode + 1} completed with final score: {episode_score}"
+                f"Episode {episode + 1} completed with final score: {episode_score}, Best score: {self.best_score}"
             )
 
             # Update best policy if current episode score is higher
